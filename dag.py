@@ -23,7 +23,7 @@ dag = DAG(
 def download_raw_data(year, month, day):
     for rm_path in ["/groupe8/clean/data.parquet", "/groupe8/clean/final.parquet"]:
         try:
-            rm = Popen(["hdfs", "dfs", "-rm", rm_path], stdin=PIPE, bufsize=-1)
+            rm = Popen(["hdfs", "dfs", "-rm", "-r", rm_path], stdin=PIPE, bufsize=-1)
             rm.communicate()
         except:
             pass
