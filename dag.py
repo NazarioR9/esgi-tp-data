@@ -21,7 +21,7 @@ dag = DAG(
 
 @task(task_id='download_raw_data', dag=dag)
 def download_raw_data(year, month, day):
-    raw_data_path = "groupe8/raw/data.csv"
+    raw_data_path = "/groupe8/raw/data.csv"
 
     url = f'https://opendata.paris.fr/api/v2/catalog/datasets/comptages-routiers-permanents/exports/csv?refine=t_1h%3A{year}%2F{month}%2F{day}&timezone=UTC'
     r = requests.get(url, allow_redirects=True)
@@ -36,18 +36,18 @@ download_raw_data = download_raw_data(YEAR, MONTH, YESTERDAY)
 
 raw_path = 'hdfs:///groupe8/raw/data.csv'
 clean_path = 'hdfs:///groupe8/clean/data.parquet'
-joint_path = 'hdfs:///groupe8/clean/joint.csv'
+joint_path = 'hdfs:///data/clean/trust'
 out_path = 'hdfs:///groupe8/clean/final.parquet'
 
 clean_data = BashOperator(
     task_id="spark_job_clean",
-    bash_command=f"/usr/bin/spark-submit --class Clean /jars/groupe8/tp_ca.jar {raw_path} {clean_path}",
+    bash_command=f"/usr/bin/spark-submit --class esgi.circulation.Clean /jars/groupe8/circulation.jar {raw_path} {clean_path}",
     dag=dag
 )
 
 transform_data = BashOperator(
     task_id="spark_job_transform",
-    bash_command=f"/usr/bin/spark-submit --class Jointure /jars/groupe8/tp_ca.jar {clean_path} {joint_path} {out_path}",
+    bash_command=f"/usr/bin/spark-submit --class esgi.circulation.Jointure /jars/groupe8/circulation.jar {clean_path} {joint_path} {out_path}",
     dag=dag
 )
 
